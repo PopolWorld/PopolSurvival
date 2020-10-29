@@ -1,0 +1,8 @@
+name: PopolSurvival
+version: 1.0
+author: Nathan Fallet
+main: me.nathanfallet.popolsurvival.PopolSurvival
+api-version: 1.16
+commands:
+    team:
+        description: Gérer sa team de survie
