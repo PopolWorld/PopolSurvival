@@ -5,5 +5,11 @@ main: me.nathanfallet.popolsurvival.PopolSurvival
 depend: [PopolServer]
 api-version: 1.16
 commands:
+    chunk:
+        description: Gérer les chunks
+    feed:
+        description: Regénre la barre de nourriture
+    fly:
+        description: Active ou désactive le fly
     team:
         description: Gérer sa team de survie
