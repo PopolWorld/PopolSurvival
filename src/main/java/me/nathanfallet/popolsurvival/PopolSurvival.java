@@ -9,9 +9,11 @@ import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import me.nathanfallet.popolserver.PopolServer;
+import me.nathanfallet.popolserver.utils.LeaderboardGenerator;
 import me.nathanfallet.popolserver.utils.PopolPlayer;
-import me.nathanfallet.popolserver.utils.ScoreboardLinesGenerator;
+import me.nathanfallet.popolserver.utils.ScoreboardGenerator;
 import me.nathanfallet.popolsurvival.commands.ChunkCommand;
+import me.nathanfallet.popolsurvival.commands.FeedCommand;
 import me.nathanfallet.popolsurvival.commands.FlyCommand;
 import me.nathanfallet.popolsurvival.commands.TeamCommand;
 import me.nathanfallet.popolsurvival.events.BlockBreak;
@@ -46,11 +48,13 @@ public class PopolSurvival extends JavaPlugin {
 
         // Register commands
         getCommand("chunk").setExecutor(new ChunkCommand());
+        getCommand("feed").setExecutor(new FeedCommand());
         getCommand("fly").setExecutor(new FlyCommand());
         getCommand("team").setExecutor(new TeamCommand());
 
         // Add scoreboard lines
-        PopolServer.getInstance().getScoreboardGenerators().add(new ScoreboardLinesGenerator() {
+        PopolServer.getInstance().getScoreboardGenerators().add(new ScoreboardGenerator() {
+
             @Override
             public List<String> generateLines(Player arg0, PopolPlayer arg1) {
                 // Create lines
@@ -65,6 +69,25 @@ public class PopolSurvival extends JavaPlugin {
                 // Return them
                 return lines;
             }
+            
+        });
+
+        // Add leaderboards
+        PopolServer.getInstance().getLeaderboardGenerators().put("teams", new LeaderboardGenerator(){
+
+            @Override
+            public List<String> getLines(int limit) {
+                // Generate lines for this leaderboard
+                // TODO
+                return new ArrayList<>();
+            }
+
+            @Override
+            public String getTitle() {
+                // Title for this leaderboard
+                return "Teams";
+            }
+            
         });
     }
 
