@@ -23,11 +23,22 @@ public class FeedCommand implements CommandExecutor {
                 player.setExhaustion(0F);
 
                 // Send message
-                player.sendMessage(ChatColor.GREEN + "Miam !");
+                if (player.getLocale() == "fr_fr") {
+                    player.sendMessage(ChatColor.GREEN + "Miam !");
+                }
+                else {
+                    player.sendMessage(ChatColor.GREEN + "Delicious!")
+                }
             } else {
                 // Not allowed
-                player.sendMessage(
+                if (player.getLocale() == "fr_fr") {
+                    player.sendMessage(
                         ChatColor.RED + "Vous n'avez pas le niveau suffisant pour utiliser cette commande !");
+                }
+                else {
+                    player.sendMessage(
+                        ChatColor.RED + "You don't have the required level in order to perform this command!");
+                }
             }
         }
         return true;

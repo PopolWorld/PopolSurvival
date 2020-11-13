@@ -25,11 +25,22 @@ public class FlyCommand implements CommandExecutor {
                 }
 
                 // Send message
-                player.sendMessage(ChatColor.GREEN + "Fly " + (player.getAllowFlight() ? "" : "des") + "activé !");
+                if (player.getLocale() == "fr_fr") {
+                    player.sendMessage(ChatColor.GREEN + "Fly " + (player.getAllowFlight() ? "" : "des") + "activé !");
+                }
+                else {
+                    player.sendMessage(ChatColor.GREEN + "Fly has been " + (player.getAllowFlight() ? "enabled" : "disabled") + "!")
+                }
             } else {
                 // Not allowed
-                player.sendMessage(
+                if (player.getLocale() == "fr_fr") {
+                    player.sendMessage(
                         ChatColor.RED + "Vous n'avez pas le niveau suffisant pour utiliser cette commande !");
+                }
+                else {
+                    player.sendMessage(
+                        ChatColor.RED + "You don't have the required level in order to perform this command!");
+                }
             }
         }
         return true;
