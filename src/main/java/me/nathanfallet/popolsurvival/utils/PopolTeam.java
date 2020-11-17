@@ -1,11 +1,12 @@
 package me.nathanfallet.popolsurvival.utils;
 
+import java.util.UUID;
+
 import me.nathanfallet.popolserver.PopolServer;
 import me.nathanfallet.popolserver.api.APIPlayer;
 import me.nathanfallet.popolserver.api.APIRequest.CompletionHandler;
 import me.nathanfallet.popolserver.api.APIResponseStatus;
 import me.nathanfallet.popolserver.api.APITeam;
-import me.nathanfallet.popolserver.utils.PopolPlayer;
 
 public class PopolTeam {
 
@@ -65,9 +66,9 @@ public class PopolTeam {
     }
 
     // Post player to API
-    public void postPlayer(PopolPlayer player, String role, final CompletionHandler<APITeam> completionHandler) {
+    public void postPlayer(UUID player, String role, final CompletionHandler<APITeam> completionHandler) {
         // Post data
-        PopolServer.getInstance().getConnector().postTeamPlayer(id, player.getUUID().toString(), role,
+        PopolServer.getInstance().getConnector().postTeamPlayer(id, player.toString(), role,
                 new CompletionHandler<APITeam>() {
                     @Override
                     public void completionHandler(APITeam object, APIResponseStatus status) {
@@ -81,9 +82,9 @@ public class PopolTeam {
     }
 
     // Delete player from API
-    public void deletePlayer(PopolPlayer player, final CompletionHandler<APITeam> completionHandler) {
+    public void deletePlayer(UUID player, final CompletionHandler<APITeam> completionHandler) {
         // Post data
-        PopolServer.getInstance().getConnector().deleteTeamPlayer(id, player.getUUID().toString(),
+        PopolServer.getInstance().getConnector().deleteTeamPlayer(id, player.toString(),
                 new CompletionHandler<APITeam>() {
                     @Override
                     public void completionHandler(APITeam object, APIResponseStatus status) {
@@ -97,13 +98,13 @@ public class PopolTeam {
     }
 
     // Check if a player is in the team
-    public boolean hasPlayer(PopolPlayer player) {
+    public boolean hasPlayer(UUID player) {
         // Check that cache is loaded
         if (cached != null && cached.players != null) {
             // Iterate players
             for (APIPlayer p : cached.players) {
                 // Check if id is the same
-                if (p.uuid.equals(player.getUUID().toString())) {
+                if (p.uuid.equals(player.toString())) {
                     return true;
                 }
             }
@@ -111,6 +112,23 @@ public class PopolTeam {
 
         // Player is not in the team
         return false;
+    }
+
+    // Get role for a player
+    public String getRole(UUID player) {
+        // Check that cache is loaded
+        if (cached != null && cached.players != null) {
+            // Iterate players
+            for (APIPlayer p : cached.players) {
+                // Check if name is the same
+                if (p.uuid.equals(player.toString())) {
+                    return p.team_member.role;
+                }
+            }
+        }
+
+        // Player is not in the team
+        return null;
     }
 
     // Interface for team loading

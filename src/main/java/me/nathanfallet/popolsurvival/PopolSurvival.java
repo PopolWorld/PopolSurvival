@@ -2,6 +2,7 @@ package me.nathanfallet.popolsurvival;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 import org.bukkit.Bukkit;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -98,8 +99,21 @@ public class PopolSurvival extends JavaPlugin {
         return null;
     }
 
+    // Retrieve a team from its name
+    public PopolTeam getTeam(String name) {
+        // Iterate teams
+        for (PopolTeam team : getTeams()) {
+            if (team.getCached() != null && team.getCached().name.equalsIgnoreCase(name)) {
+                return team;
+            }
+        }
+
+        // No team found
+        return null;
+    }
+
     // Retrieve teams for a player
-    public List<PopolTeam> getTeams(PopolPlayer player) {
+    public List<PopolTeam> getTeams(UUID player) {
         // Create a list
         List<PopolTeam> list = new ArrayList<>();
 

@@ -20,7 +20,7 @@ public class TeamScoreboardGenerator implements ScoreboardGenerator {
         lines.add(ChatColor.RED + "" + ChatColor.BOLD + "Team :");
 
         // Fetch teams for player
-        List<PopolTeam> teams = PopolSurvival.getInstance().getTeams(pp);
+        List<PopolTeam> teams = PopolSurvival.getInstance().getTeams(pp.getUUID());
 
         // Check number of teams
         if (teams.isEmpty()) {
