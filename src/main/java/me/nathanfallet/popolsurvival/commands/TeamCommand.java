@@ -17,8 +17,8 @@ import me.nathanfallet.popolserver.utils.PopolMoney.BalanceUpdatedHandler;
 import me.nathanfallet.popolserver.utils.PopolPlayer;
 import me.nathanfallet.popolsurvival.PopolSurvival;
 import me.nathanfallet.popolsurvival.utils.PopolTeam;
-import me.nathanfallet.popolsurvival.utils.PopolTeamMoney;
 import me.nathanfallet.popolsurvival.utils.PopolTeam.TeamLoaderHandler;
+import me.nathanfallet.popolsurvival.utils.PopolTeamMoney;
 
 public class TeamCommand implements CommandExecutor {
 
@@ -203,30 +203,45 @@ public class TeamCommand implements CommandExecutor {
                                         // Check value
                                         if (money >= value) {
                                             // Transfert money
-                                            sender.sendMessage(ChatColor.YELLOW + "Transfert de " + value + "₽ vers le compte de la team...");
-                                            PopolMoney.updateBalance(player, money - value, new BalanceUpdatedHandler(){
-                                                @Override
-                                                public void balanceUpdated(final Long money) {
-                                                    // Get team balance
-                                                    PopolTeamMoney.checkBalance(team, new BalanceCheckHandler(){
+                                            sender.sendMessage(ChatColor.YELLOW + "Transfert de " + value
+                                                    + "₽ vers le compte de la team...");
+                                            PopolMoney.updateBalance(player, money - value,
+                                                    new BalanceUpdatedHandler() {
                                                         @Override
-                                                        public void balanceChecked(Long teamMoney) {
-                                                            // Update balance
-                                                            PopolTeamMoney.updateBalance(team, teamMoney + value, new BalanceUpdatedHandler(){
-                                                                @Override
-                                                                public void balanceUpdated(Long teamMoney) {
-                                                                    // Send new balances
-                                                                    sender.sendMessage(ChatColor.GREEN + "Nouveau solde de votre compte : " + money + "₽");
-                                                                    sender.sendMessage(ChatColor.GREEN + "Nouveau solde de votre team : " + teamMoney + "₽");
-                                                                }
-                                                            });
+                                                        public void balanceUpdated(final Long money) {
+                                                            // Get team balance
+                                                            PopolTeamMoney.checkBalance(team,
+                                                                    new BalanceCheckHandler() {
+                                                                        @Override
+                                                                        public void balanceChecked(Long teamMoney) {
+                                                                            // Update balance
+                                                                            PopolTeamMoney.updateBalance(team,
+                                                                                    teamMoney + value,
+                                                                                    new BalanceUpdatedHandler() {
+                                                                                        @Override
+                                                                                        public void balanceUpdated(
+                                                                                                Long teamMoney) {
+                                                                                            // Send new balances
+                                                                                            sender.sendMessage(
+                                                                                                    ChatColor.GREEN
+                                                                                                            + "Nouveau solde de votre compte : "
+                                                                                                            + money
+                                                                                                            + "₽");
+                                                                                            sender.sendMessage(
+                                                                                                    ChatColor.GREEN
+                                                                                                            + "Nouveau solde de votre team : "
+                                                                                                            + teamMoney
+                                                                                                            + "₽");
+                                                                                        }
+                                                                                    });
+                                                                        }
+                                                                    });
                                                         }
                                                     });
-                                                }
-                                            });
                                         } else {
                                             // Error
-                                            sender.sendMessage(ChatColor.RED + "Erreur : vous n'avez pas assez de PopolMoney sur votre compte !");
+                                            sender.sendMessage(ChatColor.RED
+                                                    + "Erreur : vous n'avez pas assez de PopolMoney sur votre compte !");
                                         }
 
                                     }
@@ -251,7 +266,80 @@ public class TeamCommand implements CommandExecutor {
 
             // Retrieve command
             else if (args[0].equalsIgnoreCase("retrieve") && sender instanceof Player) {
+                // Check args
+                if (args.length == 3) {
+                    // Get team with this name
+                    final PopolTeam team = PopolSurvival.getInstance().getTeam(args[1]);
+                    if (team != null) {
+                        // Check member
+                        final PopolPlayer player = PopolServer.getInstance().getPlayer(((Player) sender).getUniqueId());
+                        if (team.hasPlayer(player.getUUID())) {
+                            // Check number
+                            try {
+                                final Long value = Long.parseLong(args[2]);
 
+                                // Check team balance
+                                sender.sendMessage(ChatColor.YELLOW + "Vérification du compte de cette team...");
+                                PopolTeamMoney.checkBalance(team, new BalanceCheckHandler() {
+                                    @Override
+                                    public void balanceChecked(Long money) {
+                                        // Check value
+                                        if (money >= value) {
+                                            // Transfert money
+                                            sender.sendMessage(ChatColor.YELLOW + "Transfert de " + value
+                                                    + "₽ vers votre compte...");
+                                            PopolTeamMoney.updateBalance(team, money - value,
+                                                    new BalanceUpdatedHandler() {
+                                                        @Override
+                                                        public void balanceUpdated(final Long money) {
+                                                            // Get player balance
+                                                            PopolMoney.checkBalance(player, new BalanceCheckHandler() {
+                                                                @Override
+                                                                public void balanceChecked(Long playerMoney) {
+                                                                    // Update balance
+                                                                    PopolMoney.updateBalance(player,
+                                                                            playerMoney + value,
+                                                                            new BalanceUpdatedHandler() {
+                                                                                @Override
+                                                                                public void balanceUpdated(
+                                                                                        Long playerMoney) {
+                                                                                    // Send new balances
+                                                                                    sender.sendMessage(ChatColor.GREEN
+                                                                                            + "Nouveau solde de votre compte : "
+                                                                                            + playerMoney + "₽");
+                                                                                    sender.sendMessage(ChatColor.GREEN
+                                                                                            + "Nouveau solde de votre team : "
+                                                                                            + money + "₽");
+                                                                                }
+                                                                            });
+                                                                }
+                                                            });
+                                                        }
+                                                    });
+                                        } else {
+                                            // Error
+                                            sender.sendMessage(ChatColor.RED
+                                                    + "Erreur : il n'y a pas assez de PopolMoney sur le compte de cette team !");
+                                        }
+
+                                    }
+                                });
+                            } catch (NumberFormatException exception) {
+                                // Error
+                                sender.sendMessage(ChatColor.RED + "Erreur : quantité invalide !");
+                            }
+                        } else {
+                            // Error
+                            sender.sendMessage(ChatColor.RED + "Erreur : vous ne faites pas partie de cette team !");
+                        }
+                    } else {
+                        // Error
+                        sender.sendMessage(ChatColor.RED + "Erreur : cette team n'existe pas !");
+                    }
+                } else {
+                    // Send help
+                    sender.sendMessage(ChatColor.RED + "/team retrieve <team> <valeur>");
+                }
             }
 
             // Leave command
