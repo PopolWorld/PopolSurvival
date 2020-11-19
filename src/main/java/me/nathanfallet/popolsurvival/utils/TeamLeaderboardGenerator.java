@@ -50,7 +50,7 @@ public class TeamLeaderboardGenerator implements LeaderboardGenerator, Completio
 
             // Fill cache with new data
             for (APITeam team : object) {
-                cache.add(team.name + " - " + team.money + " unités");
+                cache.add(team.name + " - " + team.money + "₽");
             }
         }
     }
