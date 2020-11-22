@@ -1,5 +1,7 @@
 package me.nathanfallet.popolsurvival.commands;
 
+import java.util.UUID;
+
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
@@ -344,7 +346,43 @@ public class TeamCommand implements CommandExecutor {
 
             // Leave command
             else if (args[0].equalsIgnoreCase("leave") && sender instanceof Player) {
-
+                // Check args
+                if (args.length == 2) {
+                    // Get team with this name
+                    PopolTeam team = PopolSurvival.getInstance().getTeam(args[1]);
+                    if (team != null) {
+                        // Check permissions
+                        UUID player = ((Player) sender).getUniqueId();
+                        if (!team.getRole(player).equals("owner")) {
+                            // Remove it
+                            sender.sendMessage(ChatColor.YELLOW + "Actualisation de la team...");
+                            team.deletePlayer(player, new CompletionHandler<APITeam>() {
+                                @Override
+                                public void completionHandler(APITeam team, APIResponseStatus status) {
+                                    // Check status
+                                    if (status == APIResponseStatus.ok) {
+                                        // Player was removed from team
+                                        sender.sendMessage(
+                                                ChatColor.GREEN + "Vous ne faites maintenant plus partie de la team "
+                                                        + ChatColor.YELLOW + team.name + ChatColor.GREEN + " !");
+                                    } else {
+                                        // Error
+                                        sender.sendMessage(ChatColor.RED + "Erreur inconnue !");
+                                    }
+                                }
+                            });
+                        } else {
+                            // Error
+                            sender.sendMessage(ChatColor.RED + "Erreur : vous ne pouvez pas quitter cette team !");
+                        }
+                    } else {
+                        // Error
+                        sender.sendMessage(ChatColor.RED + "Erreur : cette team n'existe pas !");
+                    }
+                } else {
+                    // Send help
+                    sender.sendMessage(ChatColor.RED + "/team leave <team>");
+                }
             }
 
             // Delete command
