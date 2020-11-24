@@ -26,8 +26,8 @@ public class TeamScoreboardGenerator implements ScoreboardGenerator {
         if (teams.isEmpty()) {
             // No team
             lines.add(ChatColor.WHITE + "Aucune team");
-        } else if (teams.size() > 2) {
-            // More than 2, just count
+        } else if (teams.size() > 1) {
+            // More than 1, just count
             lines.add(ChatColor.WHITE + "" + teams.size() + " teams");
         } else {
             // List teams

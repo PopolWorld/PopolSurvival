@@ -3,8 +3,10 @@ package me.nathanfallet.popolsurvival.utils;
 import java.util.UUID;
 
 import me.nathanfallet.popolserver.PopolServer;
+import me.nathanfallet.popolserver.api.APIMessage;
 import me.nathanfallet.popolserver.api.APIPlayer;
 import me.nathanfallet.popolserver.api.APIRequest.CompletionHandler;
+import me.nathanfallet.popolsurvival.PopolSurvival;
 import me.nathanfallet.popolserver.api.APIResponseStatus;
 import me.nathanfallet.popolserver.api.APITeam;
 
@@ -58,6 +60,21 @@ public class PopolTeam {
             public void completionHandler(APITeam object, APIResponseStatus status) {
                 // Update cache
                 cached = object;
+
+                // Call completion handler
+                completionHandler.completionHandler(object, status);
+            }
+        });
+    }
+
+    // Send delete to API
+    public void delete(final CompletionHandler<APIMessage> completionHandler) {
+        // Update team data
+        PopolServer.getInstance().getConnector().deleteTeam(id, new CompletionHandler<APIMessage>() {
+            @Override
+            public void completionHandler(APIMessage object, APIResponseStatus status) {
+                // Delete loaded object
+                PopolSurvival.getInstance().unloadTeam(PopolTeam.this);
 
                 // Call completion handler
                 completionHandler.completionHandler(object, status);

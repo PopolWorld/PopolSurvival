@@ -10,6 +10,7 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
 import me.nathanfallet.popolserver.PopolServer;
+import me.nathanfallet.popolserver.api.APIMessage;
 import me.nathanfallet.popolserver.api.APIRequest.CompletionHandler;
 import me.nathanfallet.popolserver.api.APIResponseStatus;
 import me.nathanfallet.popolserver.api.APITeam;
@@ -387,7 +388,42 @@ public class TeamCommand implements CommandExecutor {
 
             // Delete command
             else if (args[0].equalsIgnoreCase("delete") && sender instanceof Player) {
-
+                // Check args
+                if (args.length == 2) {
+                    // Get team with this name
+                    final PopolTeam team = PopolSurvival.getInstance().getTeam(args[1]);
+                    if (team != null) {
+                        // Check permissions
+                        UUID player = ((Player) sender).getUniqueId();
+                        if (team.getRole(player).equals("owner")) {
+                            // Delete it
+                            sender.sendMessage(ChatColor.YELLOW + "Suppression de la team...");
+                            team.delete(new CompletionHandler<APIMessage>() {
+                                @Override
+                                public void completionHandler(APIMessage message, APIResponseStatus status) {
+                                    // Check status
+                                    if (status == APIResponseStatus.ok) {
+                                        // Team was deleted
+                                        sender.sendMessage(ChatColor.GREEN + "La team " + ChatColor.YELLOW
+                                                + team.getCached().name + ChatColor.GREEN + " a bien été supprimée !");
+                                    } else {
+                                        // Error
+                                        sender.sendMessage(ChatColor.RED + "Erreur inconnue !");
+                                    }
+                                }
+                            });
+                        } else {
+                            // Error
+                            sender.sendMessage(ChatColor.RED + "Erreur : vous ne pouvez pas supprimer cette team !");
+                        }
+                    } else {
+                        // Error
+                        sender.sendMessage(ChatColor.RED + "Erreur : cette team n'existe pas !");
+                    }
+                } else {
+                    // Send help
+                    sender.sendMessage(ChatColor.RED + "/team leave <team>");
+                }
             }
 
             // Set role command
