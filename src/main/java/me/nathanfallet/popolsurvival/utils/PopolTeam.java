@@ -6,9 +6,9 @@ import me.nathanfallet.popolserver.PopolServer;
 import me.nathanfallet.popolserver.api.APIMessage;
 import me.nathanfallet.popolserver.api.APIPlayer;
 import me.nathanfallet.popolserver.api.APIRequest.CompletionHandler;
-import me.nathanfallet.popolsurvival.PopolSurvival;
 import me.nathanfallet.popolserver.api.APIResponseStatus;
 import me.nathanfallet.popolserver.api.APITeam;
+import me.nathanfallet.popolsurvival.PopolSurvival;
 
 public class PopolTeam {
 
@@ -102,6 +102,22 @@ public class PopolTeam {
     public void deletePlayer(UUID player, final CompletionHandler<APITeam> completionHandler) {
         // Post data
         PopolServer.getInstance().getConnector().deleteTeamPlayer(id, player.toString(),
+                new CompletionHandler<APITeam>() {
+                    @Override
+                    public void completionHandler(APITeam object, APIResponseStatus status) {
+                        // Update cache
+                        cached = object;
+
+                        // Call completion handler
+                        completionHandler.completionHandler(object, status);
+                    }
+                });
+    }
+
+    // Put player to API
+    public void putPlayer(UUID player, String role, final CompletionHandler<APITeam> completionHandler) {
+        // Post data
+        PopolServer.getInstance().getConnector().putTeamPlayer(id, player.toString(), role,
                 new CompletionHandler<APITeam>() {
                     @Override
                     public void completionHandler(APITeam object, APIResponseStatus status) {

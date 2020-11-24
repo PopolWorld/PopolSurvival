@@ -428,7 +428,84 @@ public class TeamCommand implements CommandExecutor {
 
             // Set role command
             else if (args[0].equalsIgnoreCase("setrole") && sender instanceof Player) {
-
+                // Check args
+                if (args.length == 4) {
+                    // Get team with this name
+                    PopolTeam team = PopolSurvival.getInstance().getTeam(args[1]);
+                    if (team != null) {
+                        // Check permissions
+                        String role = team.getRole(((Player) sender).getUniqueId());
+                        if (role.equals("owner") || role.equals("admin")) {
+                            // Get player
+                            final Player player = Bukkit.getPlayer(args[2]);
+                            if (player != null && player.isOnline()) {
+                                // Check if it is in team
+                                if (team.hasPlayer(player.getUniqueId())) {
+                                    // Check target is not team's owner
+                                    if (!team.getRole(player.getUniqueId()).equals("owner")) {
+                                        // Check role value
+                                        final String newRole = args[3].toLowerCase();
+                                        if (newRole.equals("player") || newRole.equals("admin")) {
+                                            // Change its role
+                                            sender.sendMessage(ChatColor.YELLOW + "Changement du rôle du joueur...");
+                                            team.putPlayer(player.getUniqueId(), newRole,
+                                                    new CompletionHandler<APITeam>() {
+                                                        @Override
+                                                        public void completionHandler(APITeam team,
+                                                                APIResponseStatus status) {
+                                                            // Check status
+                                                            if (status == APIResponseStatus.ok) {
+                                                                // Player role was edited
+                                                                String roleName = newRole.equals("player") ? "Joueur"
+                                                                        : "Administrateur";
+                                                                sender.sendMessage(ChatColor.YELLOW + player.getName()
+                                                                        + ChatColor.GREEN + " est maintenant "
+                                                                        + ChatColor.YELLOW + roleName + ChatColor.GREEN
+                                                                        + " dans la team " + ChatColor.YELLOW
+                                                                        + team.name + ChatColor.GREEN + " !");
+                                                                player.sendMessage(ChatColor.YELLOW + sender.getName()
+                                                                        + ChatColor.GREEN + " vous a définit "
+                                                                        + ChatColor.YELLOW + roleName + ChatColor.GREEN
+                                                                        + " dans la team " + ChatColor.YELLOW
+                                                                        + team.name + ChatColor.GREEN + " !");
+                                                            } else {
+                                                                // Error
+                                                                sender.sendMessage(ChatColor.RED + "Erreur inconnue !");
+                                                            }
+                                                        }
+                                                    });
+                                        } else {
+                                            // Error
+                                            sender.sendMessage(ChatColor.RED + "Erreur : ce rôle n'existe pas !");
+                                        }
+                                    } else {
+                                        // Error
+                                        sender.sendMessage(ChatColor.RED
+                                                + "Erreur : ce joueur ne peut pas être changé de rôle pour cette team !");
+                                    }
+                                } else {
+                                    // Error
+                                    sender.sendMessage(
+                                            ChatColor.RED + "Erreur : ce joueur n'est pas dans cette team !");
+                                }
+                            } else {
+                                // Error
+                                sender.sendMessage(
+                                        ChatColor.RED + "Erreur : ce joueur n'existe pas ou n'est pas connecté !");
+                            }
+                        } else {
+                            // Error
+                            sender.sendMessage(ChatColor.RED
+                                    + "Erreur : vous ne pouvez changer le rôle des joueurs de cette team !");
+                        }
+                    } else {
+                        // Error
+                        sender.sendMessage(ChatColor.RED + "Erreur : cette team n'existe pas !");
+                    }
+                } else {
+                    // Send help
+                    sender.sendMessage(ChatColor.RED + "/team setrole <team> <pseudo> <player/admin>");
+                }
             }
 
             // Invalid sub command, send help
