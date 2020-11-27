@@ -13,3 +13,5 @@ commands:
         description: Active ou désactive le fly
     team:
         description: Gérer sa team de survie
+    job:
+        description: Gérer son métier

@@ -16,6 +16,7 @@ import me.nathanfallet.popolserver.utils.PopolPlayer;
 import me.nathanfallet.popolsurvival.commands.ChunkCommand;
 import me.nathanfallet.popolsurvival.commands.FeedCommand;
 import me.nathanfallet.popolsurvival.commands.FlyCommand;
+import me.nathanfallet.popolsurvival.commands.JobCommand;
 import me.nathanfallet.popolsurvival.commands.TeamCommand;
 import me.nathanfallet.popolsurvival.events.BlockBreak;
 import me.nathanfallet.popolsurvival.events.BlockPlace;
@@ -24,12 +25,18 @@ import me.nathanfallet.popolsurvival.events.PlayerInteract;
 import me.nathanfallet.popolsurvival.events.PlayerJoin;
 import me.nathanfallet.popolsurvival.events.PlayerMove;
 import me.nathanfallet.popolsurvival.events.PopolPlayerLoaded;
+import me.nathanfallet.popolsurvival.utils.JobScoreboardGenerator;
+import me.nathanfallet.popolsurvival.utils.PopolJob;
 import me.nathanfallet.popolsurvival.utils.PopolTeam;
 import me.nathanfallet.popolsurvival.utils.PopolTeam.TeamLoaderHandler;
 import me.nathanfallet.popolsurvival.utils.TeamLeaderboardGenerator;
 import me.nathanfallet.popolsurvival.utils.TeamScoreboardGenerator;
 
 public class PopolSurvival extends JavaPlugin {
+
+    /**
+     * Static instance
+     */
 
     // Static instance
     private static PopolSurvival instance;
@@ -39,8 +46,17 @@ public class PopolSurvival extends JavaPlugin {
         return instance;
     }
 
+    /**
+     * Properties
+     */
+
     // Properties
     private List<PopolTeam> teams;
+    private List<PopolJob> jobs;
+
+    /**
+     * Plugin enable/disable
+     */
 
     @Override
     public void onEnable() {
@@ -60,10 +76,12 @@ public class PopolSurvival extends JavaPlugin {
         getCommand("chunk").setExecutor(new ChunkCommand());
         getCommand("feed").setExecutor(new FeedCommand());
         getCommand("fly").setExecutor(new FlyCommand());
+        getCommand("job").setExecutor(new JobCommand());
         getCommand("team").setExecutor(new TeamCommand());
 
         // Add scoreboard lines
         PopolServer.getInstance().getScoreboardGenerators().add(new TeamScoreboardGenerator());
+        PopolServer.getInstance().getScoreboardGenerators().add(new JobScoreboardGenerator());
 
         // Add leaderboards
         PopolServer.getInstance().getLeaderboardGenerators().put("teams", new TeamLeaderboardGenerator());
@@ -73,7 +91,14 @@ public class PopolSurvival extends JavaPlugin {
     public void onDisable() {
         // Clear teams
         teams = null;
+
+        // Clear jobs
+        jobs = null;
     }
+
+    /**
+     * Teams
+     */
 
     // Retrieve teams
     public List<PopolTeam> getTeams() {
@@ -199,6 +224,54 @@ public class PopolSurvival extends JavaPlugin {
                         }
                     }
                 });
+    }
+
+    /**
+     * Jobs
+     */
+
+    // Retrieve jobs
+    public List<PopolJob> getJobs() {
+        // Init jobs if needed
+        if (jobs == null) {
+            jobs = new ArrayList<>();
+        }
+
+        // Return jobs
+        return jobs;
+    }
+
+    // Retrieve jobs for a player
+    public List<PopolJob> getJobs(UUID player) {
+        // Create a list
+        List<PopolJob> list = new ArrayList<>();
+
+        // Iterate jobs
+        for (PopolJob job : getJobs()) {
+            // Check if this job is for this player
+            if (job.getPlayerUUID().equals(player)) {
+                list.add(job);
+            }
+        }
+
+        // Return list
+        return list;
+    }
+
+    // Retrieve active job for a player
+    public PopolJob getActiveJob(UUID player) {
+        // Iterate jobs
+        for (PopolJob job : getJobs()) {
+            // Check if this job is for this player and is active
+            if (job.getPlayerUUID().equals(player) && job.getCached() != null && job.getCached().active != null
+                    && job.getCached().active.booleanValue()) {
+                // In that case return it
+                return job;
+            }
+        }
+
+        // No job found
+        return null;
     }
 
 }
