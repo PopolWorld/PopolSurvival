@@ -99,9 +99,17 @@ public class PopolJob {
     }
 
     // Calculate level from experience
-    public static Long getLevelFromExperience(Long experience) {
-        // TODO: Find a way to convert exp to level
-        return 0L;
+    public static long getLevelFromExperience(long experience) {
+        if (experience > 1395) {
+            return (long) (Math.ceil(Math.sqrt(72 * experience - 54215) + 325) / 18);
+        }
+        if (experience > 315) {
+            return (long) Math.ceil(Math.sqrt(40 * experience - 7839) / 10 + 8.1);
+        }
+        if (experience > 0) {
+            return (long) Math.ceil(Math.sqrt(experience + 9) - 3);
+        }
+        return 0;
     }
 
     // Interface for job loading
