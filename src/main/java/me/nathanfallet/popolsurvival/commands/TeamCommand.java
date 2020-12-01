@@ -36,7 +36,7 @@ public class TeamCommand implements CommandExecutor {
                     // Try to create a team
                     sender.sendMessage(ChatColor.YELLOW + "Création de votre team...");
                     PopolSurvival.getInstance().createTeam(args[1],
-                            PopolServer.getInstance().getPlayer(((Player) sender).getUniqueId()),
+                            ((Player) sender).getUniqueId(),
                             new TeamLoaderHandler() {
                                 @Override
                                 public void teamLoaded(PopolTeam team) {

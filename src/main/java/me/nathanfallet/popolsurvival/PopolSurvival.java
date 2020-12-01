@@ -1,6 +1,7 @@
 package me.nathanfallet.popolsurvival;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.UUID;
 
@@ -13,7 +14,6 @@ import me.nathanfallet.popolserver.api.APIRequest.CompletionHandler;
 import me.nathanfallet.popolserver.api.APIResponseStatus;
 import me.nathanfallet.popolserver.api.APITeam;
 import me.nathanfallet.popolserver.api.APITeamCreation;
-import me.nathanfallet.popolserver.utils.PopolPlayer;
 import me.nathanfallet.popolsurvival.commands.ChunkCommand;
 import me.nathanfallet.popolsurvival.commands.FeedCommand;
 import me.nathanfallet.popolsurvival.commands.FlyCommand;
@@ -21,6 +21,7 @@ import me.nathanfallet.popolsurvival.commands.JobCommand;
 import me.nathanfallet.popolsurvival.commands.TeamCommand;
 import me.nathanfallet.popolsurvival.events.BlockBreak;
 import me.nathanfallet.popolsurvival.events.BlockPlace;
+import me.nathanfallet.popolsurvival.events.InventoryClick;
 import me.nathanfallet.popolsurvival.events.PlayerDeath;
 import me.nathanfallet.popolsurvival.events.PlayerInteract;
 import me.nathanfallet.popolsurvival.events.PlayerJoin;
@@ -70,6 +71,7 @@ public class PopolSurvival extends JavaPlugin {
         // Register events
         Bukkit.getPluginManager().registerEvents(new BlockBreak(), this);
         Bukkit.getPluginManager().registerEvents(new BlockPlace(), this);
+        Bukkit.getPluginManager().registerEvents(new InventoryClick(), this);
         Bukkit.getPluginManager().registerEvents(new PlayerDeath(), this);
         Bukkit.getPluginManager().registerEvents(new PlayerInteract(), this);
         Bukkit.getPluginManager().registerEvents(new PlayerJoin(), this);
@@ -199,13 +201,13 @@ public class PopolSurvival extends JavaPlugin {
     // Unload a team
     public void unloadTeam(PopolTeam team) {
         // Remove object from storage
-        teams.remove(team);
+        getTeams().remove(team);
     }
 
     // Create a team
-    public void createTeam(String name, PopolPlayer owner, final TeamLoaderHandler handler) {
+    public void createTeam(String name, UUID owner, final TeamLoaderHandler handler) {
         // Create team to API
-        PopolServer.getInstance().getConnector().postTeam(new APITeamCreation(name, owner.getUUID().toString()),
+        PopolServer.getInstance().getConnector().postTeam(new APITeamCreation(name, owner.toString()),
                 new CompletionHandler<APITeam>() {
                     @Override
                     public void completionHandler(APITeam object, APIResponseStatus status) {
@@ -264,6 +266,21 @@ public class PopolSurvival extends JavaPlugin {
     }
 
     // Retrieve active job for a player
+    public PopolJob getJob(UUID player, JobType type) {
+        // Iterate jobs
+        for (PopolJob job : getJobs()) {
+            // Check if this job is for this player and this type
+            if (job.getPlayerUUID().equals(player) && job.getJobType().equals(type)) {
+                // In that case return it
+                return job;
+            }
+        }
+
+        // No job found
+        return null;
+    }
+
+    // Retrieve active job for a player
     public PopolJob getActiveJob(UUID player) {
         // Iterate jobs
         for (PopolJob job : getJobs()) {
@@ -316,6 +333,47 @@ public class PopolSurvival extends JavaPlugin {
                 }
             }
         });
+    }
+
+    // Unload a job
+    public void unloadJob(PopolJob job) {
+        // Remove object from storage
+        getJobs().remove(job);
+    }
+
+    // Create a job
+    public void createJob(final JobType jobType, final UUID player, final JobsLoaderHandler handler) {
+        // Create team to API
+        PopolServer.getInstance().getConnector().postJob(player.toString(), jobType.toString().toLowerCase(),
+                new CompletionHandler<APIJob>() {
+                    @Override
+                    public void completionHandler(APIJob object, APIResponseStatus status) {
+                        // Check if job was created
+                        if (status == APIResponseStatus.created) {
+                            // Job was created, load it
+                            PopolJob job = new PopolJob(player, jobType, object);
+
+                            // Mark any active job as not active anymore
+                            PopolJob active = getActiveJob(player);
+                            if (active != null) {
+                                active.getCached().active = false;
+                            }
+
+                            // Add it to storage
+                            getJobs().add(job);
+
+                            // Call handler
+                            if (handler != null) {
+                                handler.jobsLoaded(Arrays.asList(job));
+                            }
+                        } else {
+                            // Error, name is already taken
+                            if (handler != null) {
+                                handler.jobsLoaded(null);
+                            }
+                        }
+                    }
+                });
     }
 
 }
