@@ -1,5 +1,6 @@
 package me.nathanfallet.popolsurvival.utils;
 
+import java.util.List;
 import java.util.UUID;
 
 import me.nathanfallet.popolserver.PopolServer;
@@ -92,9 +93,22 @@ public class PopolJob {
 
         // If cached experience is availble
         if (getCached() != null && getCached().experience != null) {
-            // TODO: Find a way to convert exp to level
-
+            // Get level from calculator
+            level = getLevelFromExperience(getCached().experience);
         }
+    }
+
+    // Calculate level from experience
+    public static Long getLevelFromExperience(Long experience) {
+        // TODO: Find a way to convert exp to level
+        return 0L;
+    }
+
+    // Interface for job loading
+    public interface JobsLoaderHandler {
+
+        void jobsLoaded(List<PopolJob> jobs);
+
     }
 
 }

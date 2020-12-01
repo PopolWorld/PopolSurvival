@@ -18,6 +18,9 @@ public class PopolPlayerLoaded implements Listener {
                 // Load team (if not loaded yet)
                 PopolSurvival.getInstance().loadTeam(team.id, null);
             }
+
+            // Load jobs
+            PopolSurvival.getInstance().loadJobs(event.getPlayer().getUniqueId(), null);
         }
     }
 

@@ -8,6 +8,7 @@ import org.bukkit.Bukkit;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import me.nathanfallet.popolserver.PopolServer;
+import me.nathanfallet.popolserver.api.APIJob;
 import me.nathanfallet.popolserver.api.APIRequest.CompletionHandler;
 import me.nathanfallet.popolserver.api.APIResponseStatus;
 import me.nathanfallet.popolserver.api.APITeam;
@@ -25,8 +26,11 @@ import me.nathanfallet.popolsurvival.events.PlayerInteract;
 import me.nathanfallet.popolsurvival.events.PlayerJoin;
 import me.nathanfallet.popolsurvival.events.PlayerMove;
 import me.nathanfallet.popolsurvival.events.PopolPlayerLoaded;
+import me.nathanfallet.popolsurvival.utils.JobLeaderboardGenerator;
 import me.nathanfallet.popolsurvival.utils.JobScoreboardGenerator;
+import me.nathanfallet.popolsurvival.utils.JobType;
 import me.nathanfallet.popolsurvival.utils.PopolJob;
+import me.nathanfallet.popolsurvival.utils.PopolJob.JobsLoaderHandler;
 import me.nathanfallet.popolsurvival.utils.PopolTeam;
 import me.nathanfallet.popolsurvival.utils.PopolTeam.TeamLoaderHandler;
 import me.nathanfallet.popolsurvival.utils.TeamLeaderboardGenerator;
@@ -85,6 +89,7 @@ public class PopolSurvival extends JavaPlugin {
 
         // Add leaderboards
         PopolServer.getInstance().getLeaderboardGenerators().put("teams", new TeamLeaderboardGenerator());
+        PopolServer.getInstance().getLeaderboardGenerators().put("jobs", new JobLeaderboardGenerator());
     }
 
     @Override
@@ -272,6 +277,45 @@ public class PopolSurvival extends JavaPlugin {
 
         // No job found
         return null;
+    }
+
+    // Load jobs for a player
+    public void loadJobs(final UUID player, final JobsLoaderHandler handler) {
+        // Check if jobs for this player are not already loaded
+        final List<PopolJob> loaded = getJobs(player);
+        if (!loaded.isEmpty()) {
+            if (handler != null) {
+                handler.jobsLoaded(loaded);
+            }
+            return;
+        }
+
+        // Fetch from API
+        PopolServer.getInstance().getConnector().getJobs(player.toString(), new CompletionHandler<APIJob[]>() {
+            @Override
+            public void completionHandler(APIJob[] object, APIResponseStatus status) {
+                // Check status
+                if (status == APIResponseStatus.ok) {
+                    // Load it
+                    for (APIJob job : object) {
+                        loaded.add(new PopolJob(player, JobType.valueOf(job.job.toUpperCase()), job));
+                    }
+
+                    // Add it to storage
+                    getJobs().addAll(loaded);
+
+                    // Call handler
+                    if (handler != null) {
+                        handler.jobsLoaded(loaded);
+                    }
+                } else {
+                    // Error, player doesn't exist
+                    if (handler != null) {
+                        handler.jobsLoaded(null);
+                    }
+                }
+            }
+        });
     }
 
 }
