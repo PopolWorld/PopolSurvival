@@ -12,7 +12,9 @@ public class PlayerDeath implements Listener {
         if (event.getEntity().hasPermission("popolsurvival.keepinventory")) {
             // Set keep inventory and clear drops
             event.setKeepInventory(true);
+            event.setKeepLevel(true);
             event.getDrops().clear();
+            event.setDroppedExp(0);
         }
     }
     

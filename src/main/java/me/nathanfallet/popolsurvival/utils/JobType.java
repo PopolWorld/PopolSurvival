@@ -8,8 +8,10 @@ public enum JobType {
      * Enum values
      */
 
+    MINER("Mineur", Material.STONE),
     WOODCUTTER("Bûcheron", Material.OAK_LOG),
-    MINER("Mineur", Material.STONE);
+    NETHER_MINER("Mineur du nether", Material.NETHERRACK),
+    NETHER_WOODCUTTER("Bûcheron du nether", Material.CRIMSON_STEM);
 
     /**
      * Data structure
