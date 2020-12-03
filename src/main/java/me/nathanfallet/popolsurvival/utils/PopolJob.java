@@ -156,11 +156,12 @@ public class PopolJob {
                                                         Player player = Bukkit.getPlayer(playerUUID);
                                                         if (player != null && player.isOnline()) {
                                                             player.sendMessage(ChatColor.GREEN + "Vous venez de gagner "
-                                                                    + newLevels + " niveau" + (newLevels > 1 ? "x" : "")
+                                                                    + ChatColor.YELLOW + newLevels + " niveau"
+                                                                    + (newLevels > 1 ? "x" : "") + ChatColor.GREEN
                                                                     + " dans votre métier de " + ChatColor.YELLOW
                                                                     + job.name + ChatColor.GREEN
                                                                     + ", avec une récompense de " + ChatColor.YELLOW
-                                                                    + moneyPerLevel * newLevels + "₽ " + ChatColor.GREEN
+                                                                    + moneyPerLevel * newLevels + "₽" + ChatColor.GREEN
                                                                     + " !");
                                                         }
                                                     }
