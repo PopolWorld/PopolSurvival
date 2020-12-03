@@ -21,6 +21,7 @@ import me.nathanfallet.popolsurvival.commands.JobCommand;
 import me.nathanfallet.popolsurvival.commands.TeamCommand;
 import me.nathanfallet.popolsurvival.events.BlockBreak;
 import me.nathanfallet.popolsurvival.events.BlockPlace;
+import me.nathanfallet.popolsurvival.events.EntityDeath;
 import me.nathanfallet.popolsurvival.events.InventoryClick;
 import me.nathanfallet.popolsurvival.events.PlayerDeath;
 import me.nathanfallet.popolsurvival.events.PlayerInteract;
@@ -71,6 +72,7 @@ public class PopolSurvival extends JavaPlugin {
         // Register events
         Bukkit.getPluginManager().registerEvents(new BlockBreak(), this);
         Bukkit.getPluginManager().registerEvents(new BlockPlace(), this);
+        Bukkit.getPluginManager().registerEvents(new EntityDeath(), this);
         Bukkit.getPluginManager().registerEvents(new InventoryClick(), this);
         Bukkit.getPluginManager().registerEvents(new PlayerDeath(), this);
         Bukkit.getPluginManager().registerEvents(new PlayerInteract(), this);

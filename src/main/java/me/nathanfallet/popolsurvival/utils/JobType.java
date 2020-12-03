@@ -12,7 +12,8 @@ public enum JobType {
     WOODCUTTER("Bûcheron", Material.OAK_LOG),
     NETHER_MINER("Mineur du nether", Material.NETHERRACK),
     NETHER_WOODCUTTER("Bûcheron du nether", Material.CRIMSON_STEM),
-    FARMER("Fermier", Material.WHEAT);
+    FARMER("Fermier", Material.WHEAT),
+    HUNTER("Chasseur", Material.STONE_SWORD);
 
     /**
      * Data structure
