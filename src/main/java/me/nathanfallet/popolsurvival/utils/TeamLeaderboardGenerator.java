@@ -44,7 +44,7 @@ public class TeamLeaderboardGenerator implements LeaderboardGenerator, Completio
     @Override
     public void completionHandler(APITeam[] object, APIResponseStatus status) {
         // Check status
-        if (status == APIResponseStatus.ok) {
+        if (object != null && status == APIResponseStatus.ok) {
             // Clear cache
             cache = new ArrayList<>();
 

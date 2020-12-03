@@ -44,7 +44,7 @@ public class JobLeaderboardGenerator implements LeaderboardGenerator, Completion
     @Override
     public void completionHandler(APIJob[] object, APIResponseStatus status) {
         // Check status
-        if (status == APIResponseStatus.ok) {
+        if (object != null && status == APIResponseStatus.ok) {
             // Clear cache
             cache = new ArrayList<>();
 
