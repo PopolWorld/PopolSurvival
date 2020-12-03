@@ -91,7 +91,7 @@ public class BlockBreak implements Listener {
 
             // If not null, add experience to player
             if (exp > 0) {
-                // TODO: Process this value
+                job.getPendingTransaction().add(exp);
             }
         }
     }

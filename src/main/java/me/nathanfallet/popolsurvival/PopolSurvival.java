@@ -92,6 +92,17 @@ public class PopolSurvival extends JavaPlugin {
         // Add leaderboards
         PopolServer.getInstance().getLeaderboardGenerators().put("teams", new TeamLeaderboardGenerator());
         PopolServer.getInstance().getLeaderboardGenerators().put("jobs", new JobLeaderboardGenerator());
+
+        // Process experience transactions
+        Bukkit.getScheduler().scheduleSyncRepeatingTask(this, new Runnable(){
+            @Override
+            public void run() {
+                // Iterate jobs
+                for (PopolJob job : getJobs()) {
+                    job.sendPendingTransactionAndClear();
+                }
+            }
+        }, 300, 300);
     }
 
     @Override
