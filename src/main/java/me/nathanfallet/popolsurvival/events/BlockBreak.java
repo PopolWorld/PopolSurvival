@@ -3,6 +3,7 @@ package me.nathanfallet.popolsurvival.events;
 import java.util.Random;
 
 import org.bukkit.Material;
+import org.bukkit.block.data.Ageable;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.BlockBreakEvent;
@@ -29,17 +30,17 @@ public class BlockBreak implements Listener {
                 // Check for stones
                 if (material.equals(Material.STONE) || material.equals(Material.ANDESITE)
                         || material.equals(Material.GRANITE) || material.equals(Material.DIORITE)) {
-                    exp = new Random().nextInt() % 20 == 0 ? 1 : 0;
+                    exp = new Random().nextInt() % 500 == 0 ? 1 : 0;
                 }
 
                 // Check for ores
                 else if (material.equals(Material.COAL_ORE) || material.equals(Material.IRON_ORE)
                         || material.equals(Material.GOLD_ORE)) {
-                    exp = 4;
+                    exp = 1;
                 } else if (material.equals(Material.LAPIS_ORE) || material.equals(Material.REDSTONE_ORE)) {
-                    exp = 6;
+                    exp = 2;
                 } else if (material.equals(Material.DIAMOND_ORE) || material.equals(Material.EMERALD_ORE)) {
-                    exp = 10;
+                    exp = 4;
                 }
             }
 
@@ -48,14 +49,14 @@ public class BlockBreak implements Listener {
                 // Check for stones
                 if (material.equals(Material.NETHERRACK) || material.equals(Material.BASALT)
                         || material.equals(Material.BLACKSTONE) || material.equals(Material.DIORITE)) {
-                    exp = new Random().nextInt() % 20 == 0 ? 1 : 0;
+                    exp = new Random().nextInt() % 500 == 0 ? 1 : 0;
                 }
 
                 // Check for ores
                 else if (material.equals(Material.NETHER_QUARTZ_ORE) || material.equals(Material.NETHER_GOLD_ORE)) {
-                    exp = 4;
+                    exp = 1;
                 } else if (material.equals(Material.ANCIENT_DEBRIS)) {
-                    exp = 15;
+                    exp = 6;
                 }
             }
 
@@ -65,14 +66,14 @@ public class BlockBreak implements Listener {
                 if (material.equals(Material.OAK_LOG) || material.equals(Material.BIRCH_LOG)
                         || material.equals(Material.SPRUCE_LOG) || material.equals(Material.JUNGLE_LOG)
                         || material.equals(Material.ACACIA_LOG) || material.equals(Material.DARK_OAK_LOG)) {
-                    exp = 6;
+                    exp = new Random().nextInt() % 5 == 0 ? 1 : 0;;
                 }
 
                 // Check for leaves
                 else if (material.equals(Material.OAK_LEAVES) || material.equals(Material.BIRCH_LEAVES)
                         || material.equals(Material.SPRUCE_LEAVES) || material.equals(Material.JUNGLE_LEAVES)
                         || material.equals(Material.ACACIA_LEAVES) || material.equals(Material.DARK_OAK_LEAVES)) {
-                    exp = 3;
+                    exp = new Random().nextInt() % 500 == 0 ? 1 : 0;;
                 }
             }
 
@@ -80,12 +81,28 @@ public class BlockBreak implements Listener {
             else if (job.getJobType().equals(JobType.NETHER_WOODCUTTER)) {
                 // Check for logs
                 if (material.equals(Material.CRIMSON_STEM) || material.equals(Material.WARPED_STEM)) {
-                    exp = 6;
+                    exp = new Random().nextInt() % 5 == 0 ? 1 : 0;;
                 }
 
                 // Check for leaves
                 else if (material.equals(Material.NETHER_WART_BLOCK) || material.equals(Material.WARPED_WART_BLOCK)) {
-                    exp = 3;
+                    exp = new Random().nextInt() % 500 == 0 ? 1 : 0;;
+                }
+            }
+
+            // Check for farmer
+            else if (job.getJobType().equals(JobType.FARMER)) {
+                // Check for crops
+                if (material.equals(Material.WHEAT) || material.equals(Material.CARROTS)
+                        || material.equals(Material.POTATOES) || material.equals(Material.SWEET_BERRY_BUSH)
+                        || material.equals(Material.BEETROOTS) || material.equals(Material.COCOA)) {
+                    // Check age
+                    if (event.getBlock().getBlockData() instanceof Ageable) {
+                        Ageable ageable = (Ageable) event.getBlock().getBlockData();
+                        if (ageable.getAge() == ageable.getMaximumAge()) {
+                            exp = new Random().nextInt() % 5 == 0 ? 1 : 0;;
+                        }
+                    }
                 }
             }
 
