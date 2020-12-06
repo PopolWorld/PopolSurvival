@@ -9,6 +9,7 @@ import org.bukkit.Bukkit;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import me.nathanfallet.popolserver.PopolServer;
+import me.nathanfallet.popolserver.api.APIChunk;
 import me.nathanfallet.popolserver.api.APIJob;
 import me.nathanfallet.popolserver.api.APIRequest.CompletionHandler;
 import me.nathanfallet.popolserver.api.APIResponseStatus;
@@ -33,6 +34,8 @@ import me.nathanfallet.popolsurvival.utils.JobScoreboardGenerator;
 import me.nathanfallet.popolsurvival.utils.JobType;
 import me.nathanfallet.popolsurvival.utils.PopolJob;
 import me.nathanfallet.popolsurvival.utils.PopolJob.JobsLoaderHandler;
+import me.nathanfallet.popolsurvival.utils.PopolRegion;
+import me.nathanfallet.popolsurvival.utils.PopolRegion.RegionLoaderHandler;
 import me.nathanfallet.popolsurvival.utils.PopolTeam;
 import me.nathanfallet.popolsurvival.utils.PopolTeam.TeamLoaderHandler;
 import me.nathanfallet.popolsurvival.utils.TeamLeaderboardGenerator;
@@ -59,6 +62,7 @@ public class PopolSurvival extends JavaPlugin {
     // Properties
     private List<PopolTeam> teams;
     private List<PopolJob> jobs;
+    private List<PopolRegion> regions;
 
     /**
      * Plugin enable/disable
@@ -387,6 +391,77 @@ public class PopolSurvival extends JavaPlugin {
                         }
                     }
                 });
+    }
+
+    /**
+     * Regions
+     */
+
+    // Retrieve regions
+    public List<PopolRegion> getRegions() {
+        // Init regions if needed
+        if (regions == null) {
+            regions = new ArrayList<>();
+        }
+
+        // Return regions
+        return regions;
+    }
+
+    // Retrieve a region by coordinates
+    public PopolRegion getRegion(Long x, Long z) {
+        // Iterate regions
+        for (PopolRegion region : getRegions()) {
+            if (region.getX().equals(x) && region.getZ().equals(z)) {
+                return region;
+            }
+        }
+
+        // No region found
+        return null;
+    }
+
+    // Load a region
+    public void loadRegion(final Long x, final Long z, final RegionLoaderHandler handler) {
+        // Check if region is not already loaded
+        PopolRegion loaded = getRegion(x, z);
+        if (loaded != null) {
+            if (handler != null) {
+                handler.regionLoaded(loaded);
+            }
+            return;
+        }
+
+        // Fetch from API
+        PopolServer.getInstance().getConnector().getChunks(x, z, new CompletionHandler<APIChunk[]>() {
+            @Override
+            public void completionHandler(APIChunk[] object, APIResponseStatus status) {
+                // Check status
+                if (status == APIResponseStatus.ok) {
+                    // Load it
+                    PopolRegion region = new PopolRegion(x, z, Arrays.asList(object));
+
+                    // Add it to storage
+                    getRegions().add(region);
+
+                    // Call handler
+                    if (handler != null) {
+                        handler.regionLoaded(region);
+                    }
+                } else {
+                    // Error
+                    if (handler != null) {
+                        handler.regionLoaded(null);
+                    }
+                }
+            }
+        });
+    }
+
+    // Unload a region
+    public void unloadRegion(PopolRegion region) {
+        // Remove object from storage
+        getRegions().remove(region);
     }
 
 }
