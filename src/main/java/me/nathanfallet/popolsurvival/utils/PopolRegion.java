@@ -14,13 +14,20 @@ public class PopolRegion {
     // Properties
     private Long x;
     private Long z;
-    private List<APIChunk> chunks;
+    private List<PopolChunk> chunks;
 
     // Constructor
     public PopolRegion(Long x, Long z, List<APIChunk> chunks) {
+        // Convert api objects to objects
+        List<PopolChunk> converted = new ArrayList<>();
+        for (APIChunk api : chunks) {
+            converted.add(new PopolChunk(api));
+        }
+
+        // Init
         this.x = x;
         this.z = z;
-        this.chunks = chunks;
+        this.chunks = converted;
     }
 
     // Retieve x coordinate
@@ -34,7 +41,7 @@ public class PopolRegion {
     }
 
     // Get chunks in this region
-    public List<APIChunk> getChunks() {
+    public List<PopolChunk> getChunks() {
         // Create the list if needed
         if (chunks == null) {
             chunks = new ArrayList<>();
@@ -46,15 +53,15 @@ public class PopolRegion {
 
     // Get chunk at specified coordinates
     // Coordinates are world coordinates, not region coordinates
-    public APIChunk getChunk(Long x, Long z) {
+    public PopolChunk getChunk(Long x, Long z) {
         // Check that coordinates are for this region
         if (getX().equals(x >> 5) || getZ().equals(z >> 5)) {
             return null;
         }
 
         // Filter chunks
-        for (APIChunk chunk : getChunks()) {
-            if (chunk.x.equals(x) && chunk.z.equals(z)) {
+        for (PopolChunk chunk : getChunks()) {
+            if (chunk.getCached().x.equals(x) && chunk.getCached().z.equals(z)) {
                 return chunk;
             }
         }
@@ -72,30 +79,30 @@ public class PopolRegion {
         }
 
         // Fetch API
-        PopolServer.getInstance().getConnector().postChunk(x, z, team.getId(), new CompletionHandler<APIChunk>(){
-			@Override
-			public void completionHandler(APIChunk object, APIResponseStatus status) {
-				// Check response
+        PopolServer.getInstance().getConnector().postChunk(x, z, team.getId(), new CompletionHandler<APIChunk>() {
+            @Override
+            public void completionHandler(APIChunk object, APIResponseStatus status) {
+                // Check response
                 if (status == APIResponseStatus.created) {
                     // Add new chunk to the list
-                    getChunks().add(object);
+                    getChunks().add(new PopolChunk(object));
 
                     // Call handler
                     handler.chunkLoaded(object);
                 } else {
                     handler.chunkLoaded(null);
                 }
-			}
+            }
         });
     }
 
     // Unclaim a chunk
     public void unclaimChunk(Long x, Long z, final ChunkUnloaderHandler handler) {
         // Get chunk
-        final APIChunk chunk = getChunk(x, z);
+        final PopolChunk chunk = getChunk(x, z);
         if (chunk != null) {
             // Fetch API
-            PopolServer.getInstance().getConnector().deleteChunk(x, z, new CompletionHandler<APIMessage>(){
+            PopolServer.getInstance().getConnector().deleteChunk(x, z, new CompletionHandler<APIMessage>() {
                 @Override
                 public void completionHandler(APIMessage object, APIResponseStatus status) {
                     // Check response

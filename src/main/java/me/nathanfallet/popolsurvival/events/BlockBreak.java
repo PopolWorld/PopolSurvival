@@ -11,12 +11,18 @@ import org.bukkit.event.block.BlockBreakEvent;
 import me.nathanfallet.popolsurvival.PopolSurvival;
 import me.nathanfallet.popolsurvival.utils.JobType;
 import me.nathanfallet.popolsurvival.utils.PopolJob;
+import me.nathanfallet.popolsurvival.utils.RestrictedArea;
 
 public class BlockBreak implements Listener {
 
     @EventHandler
     public void onBlockBreak(BlockBreakEvent event) {
         // Check for protection
+        RestrictedArea area = PopolSurvival.getInstance().getRestrictedArea(event.getBlock().getLocation());
+        if (area != null && !area.isAllowed(event.getPlayer())) {
+            event.setCancelled(true);
+            return;
+        }
 
         // Check for a job
         PopolJob job = PopolSurvival.getInstance().getActiveJob(event.getPlayer().getUniqueId());

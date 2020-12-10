@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.UUID;
 
 import org.bukkit.Bukkit;
+import org.bukkit.Location;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import me.nathanfallet.popolserver.PopolServer;
@@ -38,6 +39,7 @@ import me.nathanfallet.popolsurvival.utils.PopolRegion;
 import me.nathanfallet.popolsurvival.utils.PopolRegion.RegionLoaderHandler;
 import me.nathanfallet.popolsurvival.utils.PopolTeam;
 import me.nathanfallet.popolsurvival.utils.PopolTeam.TeamLoaderHandler;
+import me.nathanfallet.popolsurvival.utils.RestrictedArea;
 import me.nathanfallet.popolsurvival.utils.TeamLeaderboardGenerator;
 import me.nathanfallet.popolsurvival.utils.TeamScoreboardGenerator;
 
@@ -100,7 +102,7 @@ public class PopolSurvival extends JavaPlugin {
         PopolServer.getInstance().getLeaderboardGenerators().put("jobs", new JobLeaderboardGenerator());
 
         // Process experience transactions
-        Bukkit.getScheduler().scheduleSyncRepeatingTask(this, new Runnable(){
+        Bukkit.getScheduler().scheduleSyncRepeatingTask(this, new Runnable() {
             @Override
             public void run() {
                 // Iterate jobs
@@ -462,6 +464,32 @@ public class PopolSurvival extends JavaPlugin {
     public void unloadRegion(PopolRegion region) {
         // Remove object from storage
         getRegions().remove(region);
+    }
+
+    /**
+     * Restricted areas
+     */
+
+    // Get a restricted area from a location
+    public RestrictedArea getRestrictedArea(Location location) {
+        // Check world
+        switch (location.getWorld().getName()) {
+            // Default world, check for chunks
+            case "world":
+                // Get region for coordinates
+                long x = location.getChunk().getX();
+                long z = location.getChunk().getZ();
+
+                // Get region
+                PopolRegion region = getRegion(x >> 5, z >> 5);
+                if (region != null) {
+                    // Get chunk (if exists, else return null)
+                    return region.getChunk(x, z);
+                }
+        }
+
+        // No area found
+        return null;
     }
 
 }
