@@ -36,7 +36,7 @@ public class BlockBreak implements Listener {
                 // Check for stones
                 if (material.equals(Material.STONE) || material.equals(Material.ANDESITE)
                         || material.equals(Material.GRANITE) || material.equals(Material.DIORITE)) {
-                    exp = new Random().nextInt() % 200 == 0 ? 1 : 0;
+                    exp = new Random().nextInt() % 50 == 0 ? 1 : 0;
                 }
 
                 // Check for ores
@@ -55,7 +55,7 @@ public class BlockBreak implements Listener {
                 // Check for stones
                 if (material.equals(Material.NETHERRACK) || material.equals(Material.BASALT)
                         || material.equals(Material.BLACKSTONE) || material.equals(Material.DIORITE)) {
-                    exp = new Random().nextInt() % 200 == 0 ? 1 : 0;
+                    exp = new Random().nextInt() % 50 == 0 ? 1 : 0;
                 }
 
                 // Check for ores
@@ -72,14 +72,14 @@ public class BlockBreak implements Listener {
                 if (material.equals(Material.OAK_LOG) || material.equals(Material.BIRCH_LOG)
                         || material.equals(Material.SPRUCE_LOG) || material.equals(Material.JUNGLE_LOG)
                         || material.equals(Material.ACACIA_LOG) || material.equals(Material.DARK_OAK_LOG)) {
-                    exp = new Random().nextInt() % 20 == 0 ? 1 : 0;;
+                    exp = new Random().nextInt() % 5 == 0 ? 1 : 0;;
                 }
 
                 // Check for leaves
                 else if (material.equals(Material.OAK_LEAVES) || material.equals(Material.BIRCH_LEAVES)
                         || material.equals(Material.SPRUCE_LEAVES) || material.equals(Material.JUNGLE_LEAVES)
                         || material.equals(Material.ACACIA_LEAVES) || material.equals(Material.DARK_OAK_LEAVES)) {
-                    exp = new Random().nextInt() % 200 == 0 ? 1 : 0;;
+                    exp = new Random().nextInt() % 20 == 0 ? 1 : 0;;
                 }
             }
 
@@ -87,12 +87,12 @@ public class BlockBreak implements Listener {
             else if (job.getJobType().equals(JobType.NETHER_WOODCUTTER)) {
                 // Check for logs
                 if (material.equals(Material.CRIMSON_STEM) || material.equals(Material.WARPED_STEM)) {
-                    exp = new Random().nextInt() % 20 == 0 ? 1 : 0;;
+                    exp = new Random().nextInt() % 5 == 0 ? 1 : 0;;
                 }
 
                 // Check for leaves
                 else if (material.equals(Material.NETHER_WART_BLOCK) || material.equals(Material.WARPED_WART_BLOCK)) {
-                    exp = new Random().nextInt() % 200 == 0 ? 1 : 0;;
+                    exp = new Random().nextInt() % 20 == 0 ? 1 : 0;;
                 }
             }
 
@@ -106,7 +106,7 @@ public class BlockBreak implements Listener {
                     if (event.getBlock().getBlockData() instanceof Ageable) {
                         Ageable ageable = (Ageable) event.getBlock().getBlockData();
                         if (ageable.getAge() == ageable.getMaximumAge()) {
-                            exp = new Random().nextInt() % 20 == 0 ? 1 : 0;;
+                            exp = new Random().nextInt() % 5 == 0 ? 1 : 0;;
                         }
                     }
                 }
