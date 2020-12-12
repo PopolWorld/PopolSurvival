@@ -15,6 +15,7 @@ import me.nathanfallet.popolsurvival.PopolSurvival;
 import me.nathanfallet.popolsurvival.utils.PopolChunk;
 import me.nathanfallet.popolsurvival.utils.PopolRegion;
 import me.nathanfallet.popolsurvival.utils.PopolRegion.ChunkLoaderHandler;
+import me.nathanfallet.popolsurvival.utils.PopolRegion.ChunkUnloaderHandler;
 import me.nathanfallet.popolsurvival.utils.PopolTeam;
 import me.nathanfallet.popolsurvival.utils.PopolTeamMoney;
 
@@ -24,7 +25,7 @@ public class ChunkCommand implements CommandExecutor {
     public boolean onCommand(final CommandSender sender, Command cmd, String label, String[] args) {
         // Check args
         if (args.length != 0) {
-            // Create command
+            // Claim command
             if (args[0].equalsIgnoreCase("claim") && sender instanceof Player) {
                 // Check args
                 if (args.length == 2) {
@@ -103,6 +104,48 @@ public class ChunkCommand implements CommandExecutor {
                 }
             }
 
+            // Unclaim command
+            else if (args[0].equalsIgnoreCase("unclaim") && sender instanceof Player) {
+                // Get region for player coordinates
+                Player player = (Player) sender;
+                long x = player.getLocation().getChunk().getX();
+                long z = player.getLocation().getChunk().getZ();
+                PopolRegion region = PopolSurvival.getInstance().getRegion(x >> 5, z >> 5);
+                if (region != null) {
+                    // Get chunk in region
+                    PopolChunk chunk = region.getChunk(x, z);
+                    if (chunk != null) {
+                        // Check team for this chunk
+                        PopolTeam team = PopolSurvival.getInstance().getTeam(chunk.getCached().teamId);
+                        if (team != null && team.hasPlayer(player.getUniqueId())) {
+                            // Unclaim chunk
+                            region.unclaimChunk(x, z, new ChunkUnloaderHandler() {
+                                @Override
+                                public void chunkUnloaded() {
+                                    // Chunk unclaimed
+                                    sender.sendMessage(ChatColor.GREEN + "Le chunk a bien été libéré !");
+                                }
+                            });
+                        } else {
+                            // Error
+                            sender.sendMessage(ChatColor.RED
+                                    + "Erreur : vous n'êtes pas membre de la team qui possède ce chunk !");
+                        }
+                    } else {
+                        // Error
+                        sender.sendMessage(ChatColor.RED + "Erreur : ce chunk n'est pas encore claim !");
+                    }
+                } else {
+                    // Error
+                    sender.sendMessage(ChatColor.RED + "Erreur : ce chunk n'est pas encore claim !");
+                }
+            }
+
+            // Map command
+            else if (args[0].equalsIgnoreCase("map") && sender instanceof Player) {
+                // TODO
+            }
+
             // Invalid sub command, send help
             else {
                 sendHelp(sender);
@@ -120,8 +163,7 @@ public class ChunkCommand implements CommandExecutor {
         sender.sendMessage(ChatColor.YELLOW + "----- " + ChatColor.GOLD + "Aide du /chunk " + ChatColor.YELLOW
                 + "-----\n" + ChatColor.GOLD + "/chunk claim <team> " + ChatColor.YELLOW
                 + ": Claim un chunk pour une team.\n" + ChatColor.GOLD + "/chunk unclaim " + ChatColor.YELLOW
-                + ": Libère un chunk.\n" + ChatColor.GOLD + "/chunk info " + ChatColor.YELLOW
-                + ": Affiche les informations sur le chunk.\n" + ChatColor.GOLD + "/chunk map " + ChatColor.YELLOW
+                + ": Libère un chunk.\n" + ChatColor.GOLD + "/chunk map " + ChatColor.YELLOW
                 + ": Affiche la carte des chunks alentours.");
     }
 
