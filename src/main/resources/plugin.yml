@@ -15,6 +15,6 @@ commands:
         description: Active ou désactive le fly
     team:
         description: Gérer sa team de survie
+        aliases: [t]
     job:
         description: Gérer son métier
-        aliases: [t]
