@@ -21,3 +21,5 @@ commands:
     setrandomtp:
         description: Definir le point de random tp
         permission: popolsurvival.setrandomtp
+    bed:
+        description: Se téléporter à son lit

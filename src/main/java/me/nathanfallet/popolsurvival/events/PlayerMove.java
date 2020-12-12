@@ -28,7 +28,7 @@ public class PlayerMove implements Listener {
                     && event.getTo().getBlockY() == randomTP.getBlockY()
                     && event.getTo().getBlockZ() == randomTP.getBlockZ()) {
                 // Teleport player to a random world location
-                event.getPlayer().sendMessage(ChatColor.YELLOW + "Téléportation vers un endroit aléatoire...");
+                event.getPlayer().sendMessage(ChatColor.GOLD + "Téléportation vers un endroit aléatoire...");
                 Random random = new Random();
                 int x = random.nextInt() % (1 << 16);
                 int z = random.nextInt() % (1 << 16);

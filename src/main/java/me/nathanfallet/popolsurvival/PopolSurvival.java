@@ -20,6 +20,7 @@ import me.nathanfallet.popolserver.api.APIRequest.CompletionHandler;
 import me.nathanfallet.popolserver.api.APIResponseStatus;
 import me.nathanfallet.popolserver.api.APITeam;
 import me.nathanfallet.popolserver.api.APITeamCreation;
+import me.nathanfallet.popolsurvival.commands.BedCommand;
 import me.nathanfallet.popolsurvival.commands.ChunkCommand;
 import me.nathanfallet.popolsurvival.commands.FeedCommand;
 import me.nathanfallet.popolsurvival.commands.FlyCommand;
@@ -110,6 +111,7 @@ public class PopolSurvival extends JavaPlugin {
         getCommand("job").setExecutor(new JobCommand());
         getCommand("team").setExecutor(new TeamCommand());
         getCommand("setrandomtp").setExecutor(new SetRandomTPCommand());
+        getCommand("bed").setExecutor(new BedCommand());
 
         // Add scoreboard lines
         PopolServer.getInstance().getScoreboardGenerators().add(new TeamScoreboardGenerator());
@@ -160,8 +162,8 @@ public class PopolSurvival extends JavaPlugin {
             FileConfiguration config = YamlConfiguration.loadConfiguration(f);
             randomTP = new Location(Bukkit.getWorld(config.getString("world")), config.getDouble("x"),
                     config.getDouble("y"), config.getDouble("z"));
-                    randomTP.setYaw(config.getLong("yaw"));
-                    randomTP.setPitch(config.getLong("pitch"));
+            randomTP.setYaw(config.getLong("yaw"));
+            randomTP.setPitch(config.getLong("pitch"));
         }
 
         // Return random TP location
