@@ -35,8 +35,7 @@ public class TeamCommand implements CommandExecutor {
                 if (args.length == 2) {
                     // Try to create a team
                     sender.sendMessage(ChatColor.YELLOW + "Création de votre team...");
-                    PopolSurvival.getInstance().createTeam(args[1],
-                            ((Player) sender).getUniqueId(),
+                    PopolSurvival.getInstance().createTeam(args[1], ((Player) sender).getUniqueId(),
                             new TeamLoaderHandler() {
                                 @Override
                                 public void teamLoaded(PopolTeam team) {
@@ -181,6 +180,39 @@ public class TeamCommand implements CommandExecutor {
                 } else {
                     // Send help
                     sender.sendMessage(ChatColor.RED + "/team remove <team> <pseudo>");
+                }
+            }
+
+            // Balance command
+            else if (args[0].equalsIgnoreCase("balance") && sender instanceof Player) {
+                // Check args
+                if (args.length == 2) {
+                    // Get team with this name
+                    final PopolTeam team = PopolSurvival.getInstance().getTeam(args[1]);
+                    if (team != null) {
+                        // Check member
+                        final PopolPlayer player = PopolServer.getInstance().getPlayer(((Player) sender).getUniqueId());
+                        if (team.hasPlayer(player.getUUID())) {
+                            // Check team balance
+                            sender.sendMessage(ChatColor.YELLOW + "Vérification du compte de cette team...");
+                            PopolTeamMoney.checkBalance(team, new BalanceCheckHandler() {
+                                @Override
+                                public void balanceChecked(Long money) {
+                                    // Send money
+                                    sender.sendMessage(ChatColor.GREEN + "Solde de votre team : " + money + "₽");
+                                }
+                            });
+                        } else {
+                            // Error
+                            sender.sendMessage(ChatColor.RED + "Erreur : vous ne faites pas partie de cette team !");
+                        }
+                    } else {
+                        // Error
+                        sender.sendMessage(ChatColor.RED + "Erreur : cette team n'existe pas !");
+                    }
+                } else {
+                    // Send help
+                    sender.sendMessage(ChatColor.RED + "/team balance <team>");
                 }
             }
 
@@ -526,7 +558,8 @@ public class TeamCommand implements CommandExecutor {
                 + "-----\n" + ChatColor.GOLD + "/team create <nom> " + ChatColor.YELLOW + ": Créer une team.\n"
                 + ChatColor.GOLD + "/team add <team> <pseudo> " + ChatColor.YELLOW + ": Ajouter un membre à une team.\n"
                 + ChatColor.GOLD + "/team remove <team> <pseudo> " + ChatColor.YELLOW
-                + ": Enlever un membre d'une team.\n" + ChatColor.GOLD + "/team deposit <team> <valeur> "
+                + ": Enlever un membre d'une team.\n" + ChatColor.GOLD + "/team balance <team> " + ChatColor.YELLOW
+                + ": Vérifier le compte d'une team.\n" + ChatColor.GOLD + "/team deposit <team> <valeur> "
                 + ChatColor.YELLOW + ": Déposer de la money sur le compte d'une team.\n" + ChatColor.GOLD
                 + "/team retrieve <team> <valeur> " + ChatColor.YELLOW
                 + ": Récupérer de la money sur le compte d'une team.\n" + ChatColor.GOLD + "/team leave <team> "

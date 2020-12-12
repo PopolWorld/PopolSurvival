@@ -7,6 +7,9 @@ import me.nathanfallet.popolsurvival.PopolSurvival;
 
 public class PopolChunk implements RestrictedArea {
 
+    // Chunk price (constant)
+    public static final Long price = 1000L;
+
     // Cached current chunk
     private APIChunk cached;
 

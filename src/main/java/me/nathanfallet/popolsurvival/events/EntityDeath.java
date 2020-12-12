@@ -22,7 +22,7 @@ public class EntityDeath implements Listener {
         if (killer != null) {
             // Get player job
             PopolJob job = PopolSurvival.getInstance().getActiveJob(killer.getUniqueId());
-            if (job != null && job.getJobType().equals(JobType.HUNTER) && new Random().nextInt() % 5 == 0) {
+            if (job != null && job.getJobType().equals(JobType.HUNTER) && new Random().nextInt() % 20 == 0) {
                 // Give one experience
                 job.getPendingTransaction().add(1);
             }
