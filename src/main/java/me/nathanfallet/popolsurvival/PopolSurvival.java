@@ -1,5 +1,7 @@
 package me.nathanfallet.popolsurvival;
 
+import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -7,6 +9,8 @@ import java.util.UUID;
 
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
+import org.bukkit.configuration.file.FileConfiguration;
+import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import me.nathanfallet.popolserver.PopolServer;
@@ -20,6 +24,7 @@ import me.nathanfallet.popolsurvival.commands.ChunkCommand;
 import me.nathanfallet.popolsurvival.commands.FeedCommand;
 import me.nathanfallet.popolsurvival.commands.FlyCommand;
 import me.nathanfallet.popolsurvival.commands.JobCommand;
+import me.nathanfallet.popolsurvival.commands.SetRandomTPCommand;
 import me.nathanfallet.popolsurvival.commands.TeamCommand;
 import me.nathanfallet.popolsurvival.events.BlockBreak;
 import me.nathanfallet.popolsurvival.events.BlockPlace;
@@ -68,6 +73,7 @@ public class PopolSurvival extends JavaPlugin {
      */
 
     // Properties
+    private Location randomTP;
     private List<PopolTeam> teams;
     private List<PopolJob> jobs;
     private List<PopolRegion> regions;
@@ -103,6 +109,7 @@ public class PopolSurvival extends JavaPlugin {
         getCommand("fly").setExecutor(new FlyCommand());
         getCommand("job").setExecutor(new JobCommand());
         getCommand("team").setExecutor(new TeamCommand());
+        getCommand("setrandomtp").setExecutor(new SetRandomTPCommand());
 
         // Add scoreboard lines
         PopolServer.getInstance().getScoreboardGenerators().add(new TeamScoreboardGenerator());
@@ -131,6 +138,59 @@ public class PopolSurvival extends JavaPlugin {
 
         // Clear jobs
         jobs = null;
+    }
+
+    /**
+     * Random TP location
+     */
+
+    // Get random TP location
+    public Location getRandomTP() {
+        // Check if spawn is loaded
+        if (randomTP == null) {
+            // Get file
+            File f = new File(getDataFolder(), "random_tp.yml");
+
+            // Return default randomTP location if it doesn't exist
+            if (!f.exists()) {
+                return null;
+            }
+
+            // Else, read from file
+            FileConfiguration config = YamlConfiguration.loadConfiguration(f);
+            randomTP = new Location(Bukkit.getWorld(config.getString("world")), config.getDouble("x"),
+                    config.getDouble("y"), config.getDouble("z"));
+                    randomTP.setYaw(config.getLong("yaw"));
+                    randomTP.setPitch(config.getLong("pitch"));
+        }
+
+        // Return random TP location
+        return randomTP;
+    }
+
+    // Set random TP location
+    public void setRandomTP(Location randomTP) {
+        // Update loaded spawn
+        this.randomTP = randomTP;
+
+        // Get file
+        File f = new File(getDataFolder(), "random_tp.yml");
+        FileConfiguration config = YamlConfiguration.loadConfiguration(f);
+
+        // Set location
+        config.set("world", randomTP.getWorld().getName());
+        config.set("x", randomTP.getX());
+        config.set("y", randomTP.getY());
+        config.set("z", randomTP.getZ());
+        config.set("yaw", randomTP.getYaw());
+        config.set("pitch", randomTP.getPitch());
+
+        // Save
+        try {
+            config.save(f);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     /**
