@@ -13,6 +13,7 @@ import me.nathanfallet.popolserver.utils.PopolMoney.BalanceCheckHandler;
 import me.nathanfallet.popolserver.utils.PopolMoney.BalanceUpdatedHandler;
 import me.nathanfallet.popolsurvival.PopolSurvival;
 import me.nathanfallet.popolsurvival.utils.PopolChunk;
+import me.nathanfallet.popolsurvival.utils.PopolChunkMap;
 import me.nathanfallet.popolsurvival.utils.PopolRegion;
 import me.nathanfallet.popolsurvival.utils.PopolRegion.ChunkLoaderHandler;
 import me.nathanfallet.popolsurvival.utils.PopolRegion.ChunkUnloaderHandler;
@@ -35,60 +36,66 @@ public class ChunkCommand implements CommandExecutor {
                         // Check if player is in this team
                         Player player = (Player) sender;
                         if (team.hasPlayer(player.getUniqueId())) {
-                            // Check if chunk is already claimed
-                            // Start by getting the region
-                            final long x = player.getLocation().getChunk().getX();
-                            final long z = player.getLocation().getChunk().getZ();
-                            PopolRegion originalRegion = PopolSurvival.getInstance().getRegion(x >> 5, z >> 5);
+                            // Check world
+                            if (player.getLocation().getWorld().getName().equals("world")) {
+                                // Check if chunk is already claimed
+                                // Start by getting the region
+                                final long x = player.getLocation().getChunk().getX();
+                                final long z = player.getLocation().getChunk().getZ();
+                                PopolRegion originalRegion = PopolSurvival.getInstance().getRegion(x >> 5, z >> 5);
 
-                            // If the region doesn't exist, create it
-                            if (originalRegion == null) {
-                                // Create region and add it
-                                originalRegion = new PopolRegion(x >> 5, z >> 5, new ArrayList<APIChunk>());
-                                PopolSurvival.getInstance().getRegions().add(originalRegion);
-                            }
+                                // If the region doesn't exist, create it
+                                if (originalRegion == null) {
+                                    // Create region and add it
+                                    originalRegion = new PopolRegion(x >> 5, z >> 5, new ArrayList<APIChunk>());
+                                    PopolSurvival.getInstance().getRegions().add(originalRegion);
+                                }
 
-                            // Check if chunk is already claimed
-                            final PopolRegion region = originalRegion;
-                            PopolChunk chunk = region.getChunk(x, z);
-                            if (chunk == null) {
-                                // Check team account
-                                PopolTeamMoney.checkBalance(team, new BalanceCheckHandler() {
-                                    @Override
-                                    public void balanceChecked(Long money) {
-                                        // Check if team has enough to buy this chunk
-                                        if (money >= PopolChunk.price) {
-                                            // Update balance
-                                            sender.sendMessage(ChatColor.YELLOW + "Claim du chunk en cours...");
-                                            PopolTeamMoney.updateBalance(team, money - PopolChunk.price,
-                                                    new BalanceUpdatedHandler() {
-                                                        @Override
-                                                        public void balanceUpdated(final Long money) {
-                                                            // Claim chunk
-                                                            region.claimChunk(x, z, team, new ChunkLoaderHandler() {
-                                                                @Override
-                                                                public void chunkLoaded(APIChunk chunk) {
-                                                                    // Send new money
-                                                                    sender.sendMessage(ChatColor.GREEN
-                                                                            + "Le chunk appartient désormais à votre team !");
-                                                                    sender.sendMessage(ChatColor.GREEN
-                                                                            + "Nouveau solde de votre team : " + money
-                                                                            + "₽");
-                                                                }
-                                                            });
+                                // Check if chunk is already claimed
+                                final PopolRegion region = originalRegion;
+                                PopolChunk chunk = region.getChunk(x, z);
+                                if (chunk == null) {
+                                    // Check team account
+                                    PopolTeamMoney.checkBalance(team, new BalanceCheckHandler() {
+                                        @Override
+                                        public void balanceChecked(Long money) {
+                                            // Check if team has enough to buy this chunk
+                                            if (money >= PopolChunk.price) {
+                                                // Update balance
+                                                sender.sendMessage(ChatColor.YELLOW + "Claim du chunk en cours...");
+                                                PopolTeamMoney.updateBalance(team, money - PopolChunk.price,
+                                                        new BalanceUpdatedHandler() {
+                                                            @Override
+                                                            public void balanceUpdated(final Long money) {
+                                                                // Claim chunk
+                                                                region.claimChunk(x, z, team, new ChunkLoaderHandler() {
+                                                                    @Override
+                                                                    public void chunkLoaded(APIChunk chunk) {
+                                                                        // Send new money
+                                                                        sender.sendMessage(ChatColor.GREEN
+                                                                                + "Le chunk appartient désormais à votre team !");
+                                                                        sender.sendMessage(ChatColor.GREEN
+                                                                                + "Nouveau solde de votre team : "
+                                                                                + money + "₽");
+                                                                    }
+                                                                });
 
-                                                        }
-                                                    });
-                                        } else {
-                                            // Error
-                                            sender.sendMessage(ChatColor.RED
-                                                    + "Erreur : il n'y a pas assez de PopolMoney sur le compte de cette team !");
+                                                            }
+                                                        });
+                                            } else {
+                                                // Error
+                                                sender.sendMessage(ChatColor.RED
+                                                        + "Erreur : il n'y a pas assez de PopolMoney sur le compte de cette team !");
+                                            }
                                         }
-                                    }
-                                });
+                                    });
+                                } else {
+                                    // Error
+                                    sender.sendMessage(ChatColor.RED + "Erreur : ce chunk est déjà claim !");
+                                }
                             } else {
                                 // Error
-                                sender.sendMessage(ChatColor.RED + "Erreur : ce chunk est déjà claim !");
+                                sender.sendMessage(ChatColor.RED + "Erreur : ce monde n'est pas disponible au claim !");
                             }
                         } else {
                             // Error
@@ -106,30 +113,38 @@ public class ChunkCommand implements CommandExecutor {
 
             // Unclaim command
             else if (args[0].equalsIgnoreCase("unclaim") && sender instanceof Player) {
-                // Get region for player coordinates
+                // Get player
                 Player player = (Player) sender;
-                long x = player.getLocation().getChunk().getX();
-                long z = player.getLocation().getChunk().getZ();
-                PopolRegion region = PopolSurvival.getInstance().getRegion(x >> 5, z >> 5);
-                if (region != null) {
-                    // Get chunk in region
-                    PopolChunk chunk = region.getChunk(x, z);
-                    if (chunk != null) {
-                        // Check team for this chunk
-                        PopolTeam team = PopolSurvival.getInstance().getTeam(chunk.getCached().teamId);
-                        if (team != null && team.hasPlayer(player.getUniqueId())) {
-                            // Unclaim chunk
-                            region.unclaimChunk(x, z, new ChunkUnloaderHandler() {
-                                @Override
-                                public void chunkUnloaded() {
-                                    // Chunk unclaimed
-                                    sender.sendMessage(ChatColor.GREEN + "Le chunk a bien été libéré !");
-                                }
-                            });
+
+                // Check world
+                if (player.getLocation().getWorld().getName().equals("world")) {
+                    // Get region from coordinates
+                    long x = player.getLocation().getChunk().getX();
+                    long z = player.getLocation().getChunk().getZ();
+                    PopolRegion region = PopolSurvival.getInstance().getRegion(x >> 5, z >> 5);
+                    if (region != null) {
+                        // Get chunk in region
+                        PopolChunk chunk = region.getChunk(x, z);
+                        if (chunk != null) {
+                            // Check team for this chunk
+                            PopolTeam team = PopolSurvival.getInstance().getTeam(chunk.getCached().teamId);
+                            if (team != null && team.hasPlayer(player.getUniqueId())) {
+                                // Unclaim chunk
+                                region.unclaimChunk(x, z, new ChunkUnloaderHandler() {
+                                    @Override
+                                    public void chunkUnloaded() {
+                                        // Chunk unclaimed
+                                        sender.sendMessage(ChatColor.GREEN + "Le chunk a bien été libéré !");
+                                    }
+                                });
+                            } else {
+                                // Error
+                                sender.sendMessage(ChatColor.RED
+                                        + "Erreur : vous n'êtes pas membre de la team qui possède ce chunk !");
+                            }
                         } else {
                             // Error
-                            sender.sendMessage(ChatColor.RED
-                                    + "Erreur : vous n'êtes pas membre de la team qui possède ce chunk !");
+                            sender.sendMessage(ChatColor.RED + "Erreur : ce chunk n'est pas encore claim !");
                         }
                     } else {
                         // Error
@@ -137,13 +152,23 @@ public class ChunkCommand implements CommandExecutor {
                     }
                 } else {
                     // Error
-                    sender.sendMessage(ChatColor.RED + "Erreur : ce chunk n'est pas encore claim !");
+                    sender.sendMessage(ChatColor.RED + "Erreur : ce monde n'est pas disponible au claim !");
                 }
             }
 
             // Map command
             else if (args[0].equalsIgnoreCase("map") && sender instanceof Player) {
-                // TODO
+                // Get player
+                Player player = (Player) sender;
+
+                // Check world
+                if (player.getLocation().getWorld().getName().equals("world")) {
+                    // Open menu
+                    PopolChunkMap.openMenu(player);
+                } else {
+                    // Error
+                    sender.sendMessage(ChatColor.RED + "Erreur : ce monde n'est pas disponible au claim !");
+                }
             }
 
             // Invalid sub command, send help

@@ -4,6 +4,7 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.inventory.InventoryClickEvent;
 
+import me.nathanfallet.popolsurvival.utils.PopolChunkMap;
 import me.nathanfallet.popolsurvival.utils.PopolJobMenu;
 
 public class InventoryClick implements Listener {
@@ -12,6 +13,9 @@ public class InventoryClick implements Listener {
     public void onInventoryClick(InventoryClickEvent event) {
         // Check for job menu
         PopolJobMenu.handleClick(event);
+
+        // Check for chunk map menu
+        PopolChunkMap.handleClick(event);
     }
     
 }

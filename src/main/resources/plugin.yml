@@ -8,6 +8,7 @@ api-version: 1.16
 commands:
     chunk:
         description: Gérer les chunks
+        aliases: [c]
     feed:
         description: Regénre la barre de nourriture
     fly:
@@ -16,3 +17,4 @@ commands:
         description: Gérer sa team de survie
     job:
         description: Gérer son métier
+        aliases: [t]
