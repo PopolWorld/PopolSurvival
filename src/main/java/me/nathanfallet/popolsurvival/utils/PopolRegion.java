@@ -55,7 +55,7 @@ public class PopolRegion {
     // Coordinates are world coordinates, not region coordinates
     public PopolChunk getChunk(Long x, Long z) {
         // Check that coordinates are for this region
-        if (getX().equals(x >> 5) || getZ().equals(z >> 5)) {
+        if (!getX().equals(x >> 5) || !getZ().equals(z >> 5)) {
             return null;
         }
 
@@ -73,7 +73,7 @@ public class PopolRegion {
     // Claim a chunk at some coordinates for a team
     public void claimChunk(Long x, Long z, PopolTeam team, final ChunkLoaderHandler handler) {
         // Check that coordinates are for this region
-        if (getX().equals(x >> 5) || getZ().equals(z >> 5)) {
+        if (!getX().equals(x >> 5) || !getZ().equals(z >> 5)) {
             handler.chunkLoaded(null);
             return;
         }

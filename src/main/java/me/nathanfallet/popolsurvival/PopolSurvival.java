@@ -23,7 +23,10 @@ import me.nathanfallet.popolsurvival.commands.JobCommand;
 import me.nathanfallet.popolsurvival.commands.TeamCommand;
 import me.nathanfallet.popolsurvival.events.BlockBreak;
 import me.nathanfallet.popolsurvival.events.BlockPlace;
+import me.nathanfallet.popolsurvival.events.ChunkLoad;
+import me.nathanfallet.popolsurvival.events.EntityChangeBlock;
 import me.nathanfallet.popolsurvival.events.EntityDeath;
+import me.nathanfallet.popolsurvival.events.EntityExplode;
 import me.nathanfallet.popolsurvival.events.InventoryClick;
 import me.nathanfallet.popolsurvival.events.PlayerDeath;
 import me.nathanfallet.popolsurvival.events.PlayerInteract;
@@ -33,6 +36,7 @@ import me.nathanfallet.popolsurvival.events.PopolPlayerLoaded;
 import me.nathanfallet.popolsurvival.utils.JobLeaderboardGenerator;
 import me.nathanfallet.popolsurvival.utils.JobScoreboardGenerator;
 import me.nathanfallet.popolsurvival.utils.JobType;
+import me.nathanfallet.popolsurvival.utils.PopolChunk;
 import me.nathanfallet.popolsurvival.utils.PopolJob;
 import me.nathanfallet.popolsurvival.utils.PopolJob.JobsLoaderHandler;
 import me.nathanfallet.popolsurvival.utils.PopolRegion;
@@ -78,7 +82,10 @@ public class PopolSurvival extends JavaPlugin {
         // Register events
         Bukkit.getPluginManager().registerEvents(new BlockBreak(), this);
         Bukkit.getPluginManager().registerEvents(new BlockPlace(), this);
+        Bukkit.getPluginManager().registerEvents(new ChunkLoad(), this);
+        Bukkit.getPluginManager().registerEvents(new EntityChangeBlock(), this);
         Bukkit.getPluginManager().registerEvents(new EntityDeath(), this);
+        Bukkit.getPluginManager().registerEvents(new EntityExplode(), this);
         Bukkit.getPluginManager().registerEvents(new InventoryClick(), this);
         Bukkit.getPluginManager().registerEvents(new PlayerDeath(), this);
         Bukkit.getPluginManager().registerEvents(new PlayerInteract(), this);
@@ -434,17 +441,22 @@ public class PopolSurvival extends JavaPlugin {
             return;
         }
 
+        // Init region and add it to storage (avoid load it while its loading)
+        final PopolRegion region = new PopolRegion(x, z, new ArrayList<APIChunk>());
+        getRegions().add(region);
+
         // Fetch from API
         PopolServer.getInstance().getConnector().getChunks(x, z, new CompletionHandler<APIChunk[]>() {
             @Override
             public void completionHandler(APIChunk[] object, APIResponseStatus status) {
                 // Check status
                 if (status == APIResponseStatus.ok) {
-                    // Load it
-                    PopolRegion region = new PopolRegion(x, z, Arrays.asList(object));
-
-                    // Add it to storage
-                    getRegions().add(region);
+                    // Add chunks to region
+                    List<PopolChunk> chunks = new ArrayList<>();
+                    for (APIChunk chunk : object) {
+                        chunks.add(new PopolChunk(chunk));
+                    }
+                    region.getChunks().addAll(chunks);
 
                     // Call handler
                     if (handler != null) {

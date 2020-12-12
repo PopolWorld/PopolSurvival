@@ -57,6 +57,8 @@ public class ChunkCommand implements CommandExecutor {
                                     public void balanceChecked(Long money) {
                                         // Check if team has enough to buy this chunk
                                         if (money >= PopolChunk.price) {
+                                            // Update balance
+                                            sender.sendMessage(ChatColor.YELLOW + "Claim du chunk en cours...");
                                             PopolTeamMoney.updateBalance(team, money - PopolChunk.price,
                                                     new BalanceUpdatedHandler() {
                                                         @Override
@@ -83,10 +85,6 @@ public class ChunkCommand implements CommandExecutor {
                                         }
                                     }
                                 });
-
-                                // Claim it
-                                sender.sendMessage(ChatColor.YELLOW + "Claim du chunk en cours...");
-
                             } else {
                                 // Error
                                 sender.sendMessage(ChatColor.RED + "Erreur : ce chunk est déjà claim !");
@@ -101,7 +99,7 @@ public class ChunkCommand implements CommandExecutor {
                     }
                 } else {
                     // Send help
-                    sender.sendMessage(ChatColor.RED + "/chunk clail <team>");
+                    sender.sendMessage(ChatColor.RED + "/chunk claim <team>");
                 }
             }
 

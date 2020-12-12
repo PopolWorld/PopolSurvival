@@ -1,8 +1,9 @@
 name: PopolSurvival
-version: 1.0
 author: Nathan Fallet
 main: me.nathanfallet.popolsurvival.PopolSurvival
 depend: [PopolServer]
+load: STARTUP
+version: 1.0
 api-version: 1.16
 commands:
     chunk:
